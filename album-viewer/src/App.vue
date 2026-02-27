@@ -1,8 +1,13 @@
 <template>
   <div class="app">
     <header class="header">
-      <h1>🎵 Album Collection</h1>
-      <p>Discover amazing music albums</p>
+      <div class="header-content">
+        <div class="header-text">
+          <h1>🎵 Album Collection</h1>
+          <p>Discover amazing music albums</p>
+        </div>
+        <CartIcon :count="itemCount" @toggle="toggleCart" />
+      </div>
     </header>
 
     <main class="main">
@@ -24,6 +29,17 @@
         />
       </div>
     </main>
+
+    <CartModal 
+      :is-open="isCartOpen"
+      :items="cartItems"
+      :item-count="itemCount"
+      :total-price="totalPrice"
+      @close="toggleCart"
+      @remove="removeFromCart"
+    />
+
+    <ToastNotification />
   </div>
 </template>
 
@@ -31,11 +47,18 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import AlbumCard from './components/AlbumCard.vue'
+import CartIcon from './components/CartIcon.vue'
+import CartModal from './components/CartModal.vue'
+import ToastNotification from './components/ToastNotification.vue'
 import type { Album } from './types/album'
+import { useCart } from './composables/useCart'
 
 const albums = ref<Album[]>([])
 const loading = ref<boolean>(true)
 const error = ref<string | null>(null)
+const isCartOpen = ref<boolean>(false)
+
+const { cartItems, itemCount, totalPrice, removeFromCart } = useCart()
 
 const fetchAlbums = async (): Promise<void> => {
   try {
@@ -49,6 +72,10 @@ const fetchAlbums = async (): Promise<void> => {
   } finally {
     loading.value = false
   }
+}
+
+const toggleCart = (): void => {
+  isCartOpen.value = !isCartOpen.value
 }
 
 onMounted(() => {
@@ -66,6 +93,20 @@ onMounted(() => {
   text-align: center;
   margin-bottom: 3rem;
   color: white;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.header-text {
+  flex: 1;
+  text-align: center;
 }
 
 .header h1 {
@@ -149,6 +190,11 @@ onMounted(() => {
   
   .header h1 {
     font-size: 2rem;
+  }
+
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
   }
   
   .albums-grid {
