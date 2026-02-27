@@ -9,9 +9,9 @@ const loadCartFromStorage = (): CartItem[] => {
   try {
     const stored = localStorage.getItem(CART_STORAGE_KEY)
     if (stored) {
-      const items = JSON.parse(stored)
+      const items = JSON.parse(stored) as Array<Omit<CartItem, 'addedAt'> & { addedAt: string }>
       // Convert addedAt strings back to Date objects
-      return items.map((item: any) => ({
+      return items.map((item) => ({
         ...item,
         addedAt: new Date(item.addedAt)
       }))

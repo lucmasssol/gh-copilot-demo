@@ -19,6 +19,7 @@ export default defineConfig({
     }
   },
   test: {
+    // Enable globals for test utilities like describe, it, expect
     globals: true,
     environment: 'jsdom'
   }

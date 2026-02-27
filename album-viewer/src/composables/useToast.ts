@@ -8,12 +8,11 @@ export interface Toast {
 }
 
 const toasts = ref<Toast[]>([])
-let nextId = 1
 
 export function useToast() {
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info', duration: number = 3000): void => {
     const toast: Toast = {
-      id: nextId++,
+      id: Date.now() + Math.random(), // Use timestamp + random for unique IDs
       message,
       type,
       duration
