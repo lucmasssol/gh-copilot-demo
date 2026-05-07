@@ -21,7 +21,14 @@
     </div>
     
     <div class="album-actions">
-      <button class="btn btn-primary">Add to Cart</button>
+      <button 
+        class="btn btn-primary" 
+        @click="handleAddToCart"
+        :disabled="isInCart(album.id)"
+        :class="{ 'in-cart': isInCart(album.id) }"
+      >
+        {{ isInCart(album.id) ? '✓ In Cart' : 'Add to Cart' }}
+      </button>
       <button class="btn btn-secondary">Preview</button>
     </div>
   </div>
@@ -29,16 +36,30 @@
 
 <script setup lang="ts">
 import type { Album } from '../types/album'
+import { useCart } from '../composables/useCart'
+import { useToast } from '../composables/useToast'
 
 interface Props {
   album: Album
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const { addToCart, isInCart } = useCart()
+const { showToast } = useToast()
 
 const handleImageError = (event: Event): void => {
   const target = event.target as HTMLImageElement
   target.src = 'https://via.placeholder.com/300x300/667eea/white?text=Album+Cover'
+}
+
+const handleAddToCart = (): void => {
+  const success = addToCart(props.album)
+  if (success) {
+    showToast(`"${props.album.title}" added to cart!`, 'success')
+  } else {
+    showToast('Album is already in cart', 'info')
+  }
 }
 </script>
 
@@ -162,9 +183,22 @@ const handleImageError = (event: Event): void => {
   color: white;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   background: #5a6fd8;
   transform: translateY(-2px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary.in-cart {
+  background: #10b981;
+}
+
+.btn-primary.in-cart:hover {
+  background: #059669;
 }
 
 .btn-secondary {
